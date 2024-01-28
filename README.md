@@ -12,6 +12,4 @@ Sling TV Add-On for Kodi
 ## Links
 
 * [Sling TV](https://www.sling.com/)
-* [Support Thread](https://forum.kodi.tv/showthread.php?tid=351048)
-* [Wiki](https://github.com/d21spike/plugin.video.sling/wiki)
 * [Kodi Wiki](https://kodi.wiki/view/Main_Page)
