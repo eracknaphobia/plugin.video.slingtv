@@ -1,0 +1,5 @@
+#compiled python
+*.py[cod]
+
+# pycharm
+/.idea

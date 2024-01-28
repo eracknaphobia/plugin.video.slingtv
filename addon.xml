@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.slingtv" version="2024.01.28" name="Sling TV" provider-name="eracknaphobia">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" />
+        <import addon="script.module.inputstreamhelper"/>
+        <import addon="script.module.requests_oauthlib"/>
+        <import addon="script.module.xmltodict"/>
+        <import addon="script.module.routing"/>
+        <import addon="service.iptv.manager" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <description lang="en_GB">Sling TV for IPTV</description>
+        <platform>all</platform>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
+        <source></source>
+        <website>https://www.Slingtv.com</website>
+        <news>
+            - Initial Release
+        </news>
+        <forum></forum>
+        <assets>
+            <icon>resources/images/icon.png</icon>
+            <fanart>resources/images/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
