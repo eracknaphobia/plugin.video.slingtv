@@ -1,6 +1,7 @@
 # plugin.video.slingtv
 Sling TV Add-On for Kodi
 * Uses [IPTV Manager](https://github.com/add-ons/service.iptv.manager) to integrate live channels into Kodi EPG
+* Watch certain channels for free with the Stream Free login option
 
 ![](https://github.com/eracknaphobia/plugin.video.slingtv/blob/master/resources/images/icon.png?raw=true)
 
