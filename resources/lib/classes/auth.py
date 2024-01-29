@@ -361,12 +361,16 @@ class Auth(object):
     def getPlaylist(self, playlist_url, end_points):
         log('auth::getPlaylist() URL: %s' % playlist_url)
         license_key = ''
+        nba_channel = False
         r = requests.get(playlist_url, headers=HEADERS, verify=VERIFY)
         if r.ok:
             video = r.json()
             if video is None or 'message' in video: return
             if 'playback_info' not in video: sys.exit()
             mpd_url = video['playback_info']['dash_manifest_url']
+            if 'ad_info' in video['playback_info'] \
+                    and 'channel_name' in video['playback_info']['ad_info'] \
+                    and video['playback_info']['ad_info']['channel_name'] == "nba_league_pass": nba_channel = True
             for clip in video['playback_info']['clips']:
                 if clip['location'] != '':
                     qmx_url = clip['location']
@@ -463,4 +467,4 @@ class Auth(object):
                     video['playback_info']['asset']:
                 asset_id = video['playback_info']['asset']['guid']
 
-            return mpd_url, license_key, asset_id
+            return mpd_url, license_key, asset_id, nba_channel

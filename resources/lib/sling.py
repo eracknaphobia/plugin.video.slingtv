@@ -87,11 +87,7 @@ class Sling(object):
         url = self.url
         name = self.name
         log(f'Playing stream {name}')
-        try:
-            url, license_key, external_id = self.auth.getPlaylist(url, self.endPoints)
-        except:
-            license_key = ''
-            external_id = ''
+        url, license_key, external_id, nba_channel = self.auth.getPlaylist(url, self.endPoints)
         
         log(f'{url} | {license_key} | {external_id}')
         liz = xbmcgui.ListItem(name, path=url)
@@ -116,6 +112,10 @@ class Sling(object):
             liz.setMimeType(mime_type)
 
             liz.setContentLookup(False)
+
+            if nba_channel:
+                liz.setProperty('ResumeTime', '43200')
+                liz.setProperty('TotalTime', '1')
 
         xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
 
