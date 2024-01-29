@@ -87,7 +87,12 @@ class Sling(object):
         url = self.url
         name = self.name
         log(f'Playing stream {name}')
+        #try:
         url, license_key, external_id, nba_channel = self.auth.getPlaylist(url, self.endPoints)
+        # except:
+        #     license_key = ''
+        #     external_id = ''
+        #     nba_channel = False
         
         log(f'{url} | {license_key} | {external_id}')
         liz = xbmcgui.ListItem(name, path=url)

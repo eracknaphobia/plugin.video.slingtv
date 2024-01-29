@@ -9,9 +9,17 @@ class EPG:
     def __init__(self):
         env_urls = get_env_url()
         self.cms_url = env_urls['cms_url']
+        self.channels_url = env_urls['channels_url']
         self.monitor = xbmc.Monitor()
 
     def get_channels(self):
+        debug = dict(urlParse.parse_qsl(DEBUG_CODE))
+        if 'channels' in debug:
+            channels_url = self.channels_url
+            r = requests.get(channels_url, headers=HEADERS)
+            self.build_channels(r.json()['channels'])
+            return
+
         subs = binascii.b2a_base64(str.encode(LEGACY_SUBS.replace('+', ','))).decode().strip()
         if subs:
             channels_url = f"{self.cms_url}/cms/publish3/domain/channels/v4/{USER_OFFSET}/{USER_DMA}/{subs}/1.json"
@@ -44,7 +52,11 @@ class EPG:
                 if (linear_channel and language == 'english' and channel['metadata']['channel_name'] != last_channel
                         and (sling_free or FREE_ACCOUNT == 'false')):
                     last_channel = channel['metadata']['channel_name']
-                    genre = str(channel['metadata']['genre'][0]) if 'genre' in channel['metadata'] else ''
+                    genre = ''
+                    try:
+                        genre = str(channel['metadata']['genre'][0])
+                    except:
+                        pass
                     self.channels.append(
                         (channel['channel_guid'],
                          channel['title'],

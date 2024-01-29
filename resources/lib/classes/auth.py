@@ -110,6 +110,10 @@ class Auth(object):
             USER_OFFSET = (r.json().get('time_zone_offset', {}) or '')
             USER_ZIP = str(r.json().get('zip_code', {}) or '')
 
+            debug = dict(urlParse.parse_qsl(DEBUG_CODE))
+            if 'dma' in debug:
+                USER_DMA = debug['dma']
+
             SETTINGS.setSetting('user_dma', USER_DMA)
             SETTINGS.setSetting('user_offset', USER_OFFSET)
             SETTINGS.setSetting('user_zip', USER_ZIP)
@@ -311,9 +315,6 @@ class Auth(object):
         SETTINGS.setSetting('user_dma', '')
         SETTINGS.setSetting('user_subs', '')
         SETTINGS.setSetting('legacy_subs', '')
-        xbmcvfs.delete(PLAYLIST_FILE)
-        xbmcvfs.delete(EPG_FILE)
-        #restart_iptv
 
     def xor(self, data, key):
         return ''.join(chr(ord(s) ^ ord(c)) for s, c in zip(data, key * 100))
@@ -363,7 +364,9 @@ class Auth(object):
         license_key = ''
         nba_channel = False
         r = requests.get(playlist_url, headers=HEADERS, verify=VERIFY)
+        log(r.text)
         if r.ok:
+            qmx_url = None
             video = r.json()
             if video is None or 'message' in video: return
             if 'playback_info' not in video: sys.exit()
@@ -372,11 +375,13 @@ class Auth(object):
                     and 'channel_name' in video['playback_info']['ad_info'] \
                     and video['playback_info']['ad_info']['channel_name'] == "nba_league_pass": nba_channel = True
             for clip in video['playback_info']['clips']:
-                if clip['location'] != '':
+                if clip['location'] != '' and clip['location'] is not None:
                     qmx_url = clip['location']
                     break
-            if 'UNKNOWN' not in mpd_url:
+            log(f"qmx_url:{qmx_url}")
+            if 'UNKNOWN' not in mpd_url and qmx_url is not None:
                 r = requests.get(qmx_url, headers=HEADERS, verify=VERIFY)
+                log(r.text)
                 if r.ok:
                     # START: CDN Server error temporary fix
                     message = 'Sorry, our service is currently not available in your region'
@@ -409,56 +414,21 @@ class Auth(object):
 
                     log('auth::getPlaylist() license_key: %s' % license_key)
             else:
-                if 'vod_info' in video['playback_info']:
+                if 'linear_info' in video['playback_info']:
+                    if 'disney_stream_service_url' in video['playback_info']['linear_info']:
+                        mpd_url = self.get_disney_stream(end_points, video)
+                    elif 'pluto.tv' in video['playback_info']['linear_info']['media_url']:
+                        mpd_url = self.get_pluto_stream(video)
+                    else:
+                        mpd_url = self.get_drm_free_stream(video)
+
+                elif 'vod_info' in video['playback_info']:
                     fod_url = video['playback_info']['vod_info'].get('media_url', '')
                     r = requests.get(fod_url, headers=HEADERS, verify=VERIFY)
                     if r.ok:
                         mpd_url = r.json()['stream']
                     elif 'message' in r.json():
                         notificationDialog(r.json()['message'])
-                elif 'linear_info' in video['playback_info'] \
-                        and 'disney_stream_service_url' in video['playback_info']['linear_info']:
-                    log('auth::getPlaylist() Inside Disney/ABC')
-                    utc_datetime = str(time.mktime(datetime.datetime.utcnow().timetuple())).split('.')[0]
-                    sha1_user_id = hashlib.sha1(SUBSCRIBER_ID.encode()).hexdigest()
-                    rsa_sign_url = f"{end_points['cmwnext_url']}/cmw/v1/rsa/sign"
-                    stream_headers = HEADERS
-                    stream_headers['Content-Type'] = 'application/x-www-form-urlencoded'
-                    payload = f'document={sha1_user_id}_{utc_datetime}_'
-                    log(f'getPlaylist, RSA payload => {payload}')
-                    r = requests.post(rsa_sign_url, headers=stream_headers, data=payload, verify=VERIFY)
-                    if r.ok and 'signature' in r.json():
-                        signature = r.json()['signature']
-                        log('auth::getPlaylist() RSA Signature: %s' % signature)
-                        disney_info = video['playback_info']['linear_info']
-                        if 'abc' in disney_info['disney_network_code']:
-                            brand = '003'
-                        else:
-                            brand = disney_info['disney_brand_code']
-                        params = {
-                            'ak': 'fveequ3ecb9n7abp66euyc48',
-                            'brand': brand,
-                            'device': '001_14',
-                            'locale': disney_info.get('disney_locale', ''),
-                            'token': f'{sha1_user_id}_{utc_datetime}_{signature}',
-                            'token_type': 'offsite_dish_ott',
-                            'user_id': sha1_user_id,
-                            'video_type': 'live',
-                            'zip_code': USER_ZIP
-                        }
-                        service_url = disney_info['disney_stream_service_url']
-                        payload = ''
-                        for key in params.keys():
-                            payload += f'{key}={params[key]}&'
-                        payload = payload[:-1]
-                        r = requests.post(service_url, headers=stream_headers, data=payload, verify=VERIFY)
-                        log(f"auth::getPlaylist() Disney response code: {r.status_code}")
-                        if r.ok:
-                            log(str(r.text))
-                            session_xml = xmltodict.parse(r.text)
-                            service_stream = session_xml['playmanifest']['channel']['assets']['asset']['#text']
-                            log(f'auth::getPlaylist() XML Stream: {service_stream}')
-                            mpd_url = service_stream
 
             asset_id = ''
             if 'entitlement' in video and 'asset_id' in video['entitlement']:
@@ -468,3 +438,78 @@ class Auth(object):
                 asset_id = video['playback_info']['asset']['guid']
 
             return mpd_url, license_key, asset_id, nba_channel
+
+    def get_disney_stream(self, end_points, video):
+        mpd_url = ''
+        log('auth::getPlaylist() Inside Disney/ABC')
+        utc_datetime = str(time.mktime(datetime.datetime.utcnow().timetuple())).split('.')[0]
+        sha1_user_id = hashlib.sha1(SUBSCRIBER_ID.encode()).hexdigest()
+        rsa_sign_url = f"{end_points['cmwnext_url']}/cmw/v1/rsa/sign"
+        stream_headers = HEADERS
+        stream_headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        payload = f'document={sha1_user_id}_{utc_datetime}_'
+        log(f'getPlaylist, RSA payload => {payload}')
+        r = requests.post(rsa_sign_url, headers=stream_headers, data=payload, verify=VERIFY)
+        if r.ok and 'signature' in r.json():
+            signature = r.json()['signature']
+            log('auth::getPlaylist() RSA Signature: %s' % signature)
+            disney_info = video['playback_info']['linear_info']
+            if 'abc' in disney_info['disney_network_code']:
+                brand = '003'
+            else:
+                brand = disney_info['disney_brand_code']
+            params = {
+                'ak': 'fveequ3ecb9n7abp66euyc48',
+                'brand': brand,
+                'device': '001_14',
+                'locale': disney_info.get('disney_locale', ''),
+                'token': f'{sha1_user_id}_{utc_datetime}_{signature}',
+                'token_type': 'offsite_dish_ott',
+                'user_id': sha1_user_id,
+                'video_type': 'live',
+                'zip_code': USER_ZIP
+            }
+            service_url = disney_info['disney_stream_service_url']
+            payload = ''
+            for key in params.keys():
+                payload += f'{key}={params[key]}&'
+            payload = payload[:-1]
+            r = requests.post(service_url, headers=stream_headers, data=payload, verify=VERIFY)
+            log(f"auth::getPlaylist() Disney response code: {r.status_code}")
+            if r.ok:
+                log(str(r.text))
+                session_xml = xmltodict.parse(r.text)
+                service_stream = session_xml['playmanifest']['channel']['assets']['asset']['#text']
+                log(f'auth::getPlaylist() XML Stream: {service_stream}')
+                mpd_url = service_stream
+
+        return mpd_url
+
+    def get_pluto_stream(self, video):
+        mpd_url = ''
+        media_url = video['playback_info']['linear_info'].get('media_url', '')
+        media_url += f'&sling_tv_timestamp={int(time.time())}'
+        log(f"media_url: {media_url}")
+        r = requests.get(media_url, headers=HEADERS, verify=VERIFY)
+        log(r.text)
+        if r.ok:
+            mpd_url = r.json()['manifest_url']
+            log(f"manifest_url: {mpd_url}")
+        elif 'message' in r.json():
+            notificationDialog(r.json()['message'])
+
+        return mpd_url
+
+    def get_drm_free_stream(self, video):
+        mpd_url = ''
+        media_url = video['playback_info']['linear_info'].get('media_url', '')
+        log(f"media_url: {media_url}")
+        r = requests.get(media_url, headers=HEADERS, verify=VERIFY)
+        log(r.text)
+        if r.ok:
+            mpd_url = r.json()['manifest_url']
+            log(f"manifest_url: {mpd_url}")
+        elif 'message' in r.json():
+            notificationDialog(r.json()['message'])
+
+        return mpd_url
