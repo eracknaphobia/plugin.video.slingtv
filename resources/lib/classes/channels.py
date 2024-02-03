@@ -45,7 +45,6 @@ class CHANNELS:
         return self.channels
 
     def build_channels(self, channels):
-        last_channel = ''
         for channel in channels:
             if 'metadata' in channel:
                 if xbmc.Monitor().abortRequested():
@@ -57,9 +56,8 @@ class CHANNELS:
                 sling_free = True if 'genre' in channel['metadata'] and 'Sling Free' in channel['metadata'][
                     'genre'] else False
 
-                if (linear_channel and language == 'english' and channel['metadata']['channel_name'] != last_channel
+                if (linear_channel and language == 'english' and not any(d['name'] == channel['metadata']['channel_name'] for d in self.channels)
                         and (sling_free or FREE_ACCOUNT == 'false')):
-                    last_channel = channel['metadata']['channel_name']
                     channel_dict = {
                         'name': channel['metadata']['channel_name'],
                         'stream': f'plugin://plugin.video.slingtv/?mode=play&url={channel["qvt_url"]}',

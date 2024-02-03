@@ -37,7 +37,6 @@ class EPG:
                         self.build_channels(sub_pack['channels'])
 
     def build_channels(self, channels):
-        last_channel = ''
         for channel in channels:
             if 'metadata' in channel:
                 if self.monitor.abortRequested():
@@ -49,9 +48,7 @@ class EPG:
                 sling_free = True if 'genre' in channel['metadata'] and 'Sling Free' in channel['metadata'][
                     'genre'] else False
 
-                if (linear_channel and language == 'english' and channel['metadata']['channel_name'] != last_channel
-                        and (sling_free or FREE_ACCOUNT == 'false')):
-                    last_channel = channel['metadata']['channel_name']
+                if linear_channel and language == 'english' and (sling_free or FREE_ACCOUNT == 'false'):
                     genre = ''
                     try:
                         genre = str(channel['metadata']['genre'][0])
@@ -65,6 +62,11 @@ class EPG:
                          channel['qvt_url'],
                          genre)
                     )
+
+        if self.channels:
+            self.channels = sorted(self.channels,
+                                   key=lambda x: x[1].upper().split('THE ')[1] if 'THE ' in x[1].upper() else
+                                   x[1].upper())
 
     def get_epg_data(self):
         from collections import defaultdict
