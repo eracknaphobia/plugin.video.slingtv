@@ -62,6 +62,7 @@ class CHANNELS:
                         'name': channel['metadata']['channel_name'],
                         'stream': f'plugin://plugin.video.slingtv/?mode=play&url={channel["qvt_url"]}',
                         'id': channel['title'],
-                        'logo': channel['thumbnail']['url']
+                        'logo': channel['thumbnail']['url'],
+                        'preset': channel['channel_number']
                     }
                     self.channels.append(channel_dict)

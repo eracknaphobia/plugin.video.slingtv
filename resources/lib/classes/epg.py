@@ -112,6 +112,17 @@ class EPG:
                     title = str(slot['title'])
                     sub_title = slot['metadata']['episode_title'] if 'episode_title' in slot['metadata'] else ''
                     desc = slot['metadata']['description'] if 'description' in slot['metadata'] else ''
+                    xbmc.log(title)
+                    image = ''
+                    if 'thumbnail' in slot and slot['thumbnail']:
+                        image = slot['thumbnail']['url']
+                    elif 'program' in slot and slot['program']['franchise_image'] is not None:
+                        image = slot['program']['franchise_image']
+                    air_date = slot['orig_air_date'] if 'orig_air_date' in slot else ''
+                    genres = ''
+                    if 'genre' in slot['metadata']:
+                        for genre in slot['metadata']['genre']:
+                            genres += f"{genre} "
 
                     epg_dict['start'] = start_time
                     epg_dict['stop'] = stop_time
@@ -119,22 +130,16 @@ class EPG:
                     epg_dict['description'] = desc
                     epg_dict['subtitle'] = sub_title
                     epg_dict['stream'] = stream_url
-
-                    try:
-                        epg_dict['icon'] = slot['thumbnail']['url']
-                    except:
-                        pass
-
-                    genres = slot['metadata']['genre'] if 'genre' in slot['metadata'] else []
-                    if genres:
-                        genre = genres[0]
-                        epg_dict['genre'] = genre
+                    epg_dict['image'] = image
+                    epg_dict['date'] = air_date
+                    epg_dict['genre'] = genres
 
                     if 'episode_season' in slot['metadata'] and 'episode_number' in slot['metadata']:
                         s = slot['metadata']['episode_season']
                         e = slot['metadata']['episode_number']
-                        episode = f'S{s}E{e}'
-                        epg_dict['episode'] = episode
+                        if s != 0 and e != 0:
+                            episode = f'S{s}E{e}'
+                            epg_dict['episode'] = episode
 
                     epg[channel_id].append(epg_dict)
 
