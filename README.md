@@ -12,7 +12,7 @@ Sling TV Add-On for Kodi
 
 ## Initial Setup
 * Open the Sling TV addon it will prompt you to login to your account or select Stream Free
-* Once you've logged in successfully go to IPTV Manager Settings and select **Refresh channels and guid now**
+* Once you've logged in successfully go to IPTV Manager Settings and select **Refresh channels and guide now**
 * It's recommended that you set the **Refresh interval** in IPTV Manager to 12 hours (or lower) since guide data is 24 hr period this will prevent any gaps in the guide
 
 ## Links
