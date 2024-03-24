@@ -486,19 +486,13 @@ class Auth(object):
         return mpd_url
 
     def get_pluto_stream(self, video):
-        mpd_url = ''
         media_url = video['playback_info']['linear_info'].get('media_url', '')
-        media_url += f'&sling_tv_timestamp={int(time.time())}'
-        log(f"media_url: {media_url}")
-        r = requests.get(media_url, headers=HEADERS, verify=VERIFY)
-        log(r.text)
-        if r.ok:
-            mpd_url = r.json()['manifest_url']
-            log(f"manifest_url: {mpd_url}")
-        elif 'message' in r.json():
-            notificationDialog(r.json()['message'])
-
-        return mpd_url
+        parsed_url = urlLib.urlparse(media_url)
+        params = urlLib.parse_qs(parsed_url.query)
+        channel_id = params['channel'][0]
+        hls_url = f"https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/{channel_id}/master.m3u8?advertisingId=channel&appName=rokuchannel&appVersion=1.0&bmodel=bm1&channel_id=channel&content=channel&content_rating=ROKU_ADS_CONTENT_RATING&content_type=livefeed&coppa=false&deviceDNT=1&deviceId=channel&deviceMake=rokuChannel&deviceModel=web&deviceType=rokuChannel&deviceVersion=1.0&embedPartner=rokuChannel&genre=ROKU_ADS_CONTENT_GENRE&is_lat=1&platform=web&rdid=channel&studio_id=viacom&tags=ROKU_CONTENT_TAGS"
+        
+        return hls_url
 
     def get_drm_free_stream(self, video):
         mpd_url = ''

@@ -98,7 +98,12 @@ class EPG:
                 xbmc.log(schedule_url)
                 i += 1
                 progress.update(int((i / len(self.channels)) * 100), message=f"{channel[2]}")
-                r = session.get(schedule_url, headers=HEADERS, timeout=10)
+                
+                try:
+                    r = session.get(schedule_url, headers=HEADERS, timeout=10)
+                except:
+                    pass
+
                 if not r.ok or 'schedule' not in r.json() or 'scheduleList' not in r.json()['schedule']: continue
                 channel_id = channel[1]
                 stream_url = channel[4]
