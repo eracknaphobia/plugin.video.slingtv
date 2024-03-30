@@ -8,7 +8,7 @@ Sling TV Add-On for Kodi
 ![Build Status](https://img.shields.io/badge/Build-Beta-orange)
 ![License](https://img.shields.io/badge/License-GPL--3.0--only-success.svg)
 ![Kodi Version](https://img.shields.io/badge/Kodi-Nexus%2B-brightgreen)
-![Contributors](https://img.shields.io/badge/Contributors-0eracknaphobia-darkgray)
+![Contributors](https://img.shields.io/badge/Contributors-eracknaphobia-darkgray)
 
 ## Initial Setup
 * Install [IPTV Manager from their github repo](https://github.com/add-ons/service.iptv.manager/releases) as the version in the official kodi repo doesn't work correctly.
