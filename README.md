@@ -1,14 +1,14 @@
 # plugin.video.slingtv
+![Build Status](https://img.shields.io/badge/Build-Beta-orange)
+![License](https://img.shields.io/badge/License-GPL--3.0--only-success.svg)
+![Kodi Version](https://img.shields.io/badge/Kodi-Nexus%2B-brightgreen)
+![Contributors](https://img.shields.io/badge/Contributors-eracknaphobia-darkgray)
+
 Sling TV Add-On for Kodi
 * Uses [IPTV Manager](https://github.com/add-ons/service.iptv.manager) to integrate live channels into Kodi EPG
 * Watch certain channels for free with the Stream Free login option
 
 ![](https://github.com/eracknaphobia/plugin.video.slingtv/blob/master/resources/images/icon.png?raw=true)
-
-![Build Status](https://img.shields.io/badge/Build-Beta-orange)
-![License](https://img.shields.io/badge/License-GPL--3.0--only-success.svg)
-![Kodi Version](https://img.shields.io/badge/Kodi-Nexus%2B-brightgreen)
-![Contributors](https://img.shields.io/badge/Contributors-eracknaphobia-darkgray)
 
 ## Initial Setup
 * Install [IPTV Manager from their github repo](https://github.com/add-ons/service.iptv.manager/releases) as the version in the official kodi repo doesn't work correctly.
