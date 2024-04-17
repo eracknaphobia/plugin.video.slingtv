@@ -48,7 +48,7 @@ class EPG:
                 sling_free = True if 'genre' in channel['metadata'] and 'Sling Free' in channel['metadata'][
                     'genre'] else False
 
-                if linear_channel and language == 'english' and (sling_free or FREE_ACCOUNT == 'false'):
+                if linear_channel and language == 'english' and (sling_free or CHANNELS):
                     genre = ''
                     try:
                         genre = str(channel['metadata']['genre'][0])

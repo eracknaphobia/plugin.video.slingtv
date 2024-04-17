@@ -110,7 +110,8 @@ class Sling(object):
             liz.setProperty('inputstream', is_helper.inputstream_addon)
             liz.setProperty('inputstream.adaptive.manifest_type', protocol)
             liz.setProperty('inputstream.adaptive.stream_headers', 'User-Agent=' + USER_AGENT)
-
+            liz.setProperty('inputstream.adaptive.manifest_headers', 'User-Agent=' + USER_AGENT)
+            
             if license_key != '':
                 liz.setProperty('inputstream.adaptive.license_type', drm)
                 liz.setProperty('inputstream.adaptive.license_key', license_key)
