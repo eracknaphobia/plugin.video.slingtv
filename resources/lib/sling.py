@@ -48,6 +48,11 @@ class Sling(object):
 
         if self.mode is None:
             self.buildMenu()
+        elif self.mode == "ondemand":
+            if self.url is not None:
+                self.onDemand(self.url)
+            else:
+                self.onDemandCategories()
         elif self.mode == "play":
             self.play()
         elif self.mode == "settings":
@@ -78,10 +83,88 @@ class Sling(object):
         log(f'\rName: {self.name} | Mode: {self.mode}\rURL: {self.sysARG[0]}{self.sysARG[2]}\rParams:\r{self.params}')
 
     def buildMenu(self):
-        log('Building Menu')
+        log('Building Menu')        
 
         if self.mode is None:
+            addDir("On Demand", self.handleID, '', "ondemand")
             addOption("Settings", self.handleID, '', mode='settings')
+
+    def onDemandCategories(self):        
+        od_headers = {            
+            "Authorization": f"Bearer {SETTINGS.getSetting('access_token_jwt')}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+            "dma": USER_DMA,
+            "timezone": USER_OFFSET,
+            "geo-zipcode": USER_ZIP,
+            "features": "use_ui_4=true,inplace_reno_invalidation=true,gzip_response=true,enable_extended_expiry=true,enable_home_channels=true,enable_iap=true,enable_trash_franchise_iview=false,browse-by-service-ribbon=true,subpack-hub-view=true,entitled_streaming_hub=false,add-premium-channels=false,enable_home_sports_scores=true,enable-basepack-ribbon=true,is_rewards_enabled=false",        
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "CLIENT-CONFIG": "rn-client-config",
+            "Client-Version": "6.2.4",
+            "Player-Version": "8.10.1",
+            "Client-Analytics-ID": "",            
+            "Device-Model": "Chrome",                        
+            "page_size": "large",            
+            "response-config": "ar_browser_1_1",            
+            "Content-Type": "application/json; charset=UTF-8",
+            "Origin": "https://watch.sling.com",
+            "Connection": "keep-alive",
+            "Referer": "https://watch.sling.com/",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "cross-site",
+            "TE": "trailers"
+        }
+
+        url = "https://p-cmwnext-fast.movetv.com/pres/on_demand_all"
+
+        r = requests.get(url, headers=od_headers)    
+
+        if r.ok:
+            for ribbon in r.json()['ribbons']:
+                if "title" in ribbon:
+                    addDir(ribbon['title'], self.handleID, ribbon['href'], "ondemand")
+
+    def onDemand(self, url):
+        od_headers = {            
+            "Authorization": f"Bearer {SETTINGS.getSetting('access_token_jwt')}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+            "dma": USER_DMA,
+            "timezone": USER_OFFSET,
+            "geo-zipcode": USER_ZIP,
+            "features": "use_ui_4=true,inplace_reno_invalidation=true,gzip_response=true,enable_extended_expiry=true,enable_home_channels=true,enable_iap=true,enable_trash_franchise_iview=false,browse-by-service-ribbon=true,subpack-hub-view=true,entitled_streaming_hub=false,add-premium-channels=false,enable_home_sports_scores=true,enable-basepack-ribbon=true,is_rewards_enabled=false",        
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br, zstd",
+            "CLIENT-CONFIG": "rn-client-config",
+            "Client-Version": "6.2.4",
+            "Player-Version": "8.10.1",
+            "Client-Analytics-ID": "",            
+            "Device-Model": "Chrome",                        
+            "page_size": "large",            
+            "response-config": "ar_browser_1_1",            
+            "Content-Type": "application/json; charset=UTF-8",
+            "Origin": "https://watch.sling.com",
+            "Connection": "keep-alive",
+            "Referer": "https://watch.sling.com/",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "cross-site",
+            "TE": "trailers"
+        }
+        r = requests.get(url, headers=od_headers)    
+
+        if r.ok:
+            for tile in r.json()['tiles']:
+                if "title" in tile:
+                    try:
+                        name = tile["title"]
+                        stream_url = tile["actions"]["PLAY_CONTENT"]["playback_info"]["url"]
+                        icon = tile["image"]["url"]
+                        addLink(name, self.handleID,  stream_url, "play", info=None, art=icon)
+                    except:
+                        pass
 
     def play(self):
         url = self.url
@@ -109,7 +192,8 @@ class Sling(object):
 
             liz.setProperty('inputstream', is_helper.inputstream_addon)
             liz.setProperty('inputstream.adaptive.manifest_type', protocol)
-            liz.setProperty('inputstream.adaptive.stream_headers', 'User-Agent=' + USER_AGENT)
+            liz.setProperty('inputstream.adaptive.stream_headers', f'User-Agent={USER_AGENT}')
+            liz.setProperty('inputstream.adaptive.manifest_headers', f'User-Agent={USER_AGENT}')
 
             if license_key != '':
                 liz.setProperty('inputstream.adaptive.license_type', drm)
@@ -118,9 +202,9 @@ class Sling(object):
 
             liz.setContentLookup(False)
 
-            if nba_channel:
-                liz.setProperty('ResumeTime', '43200')
-                liz.setProperty('TotalTime', '1')
+            # if nba_channel:
+            #     liz.setProperty('ResumeTime', '43200')
+            #     liz.setProperty('TotalTime', '1')
 
         xbmcplugin.setResolvedUrl(int(self.sysARG[1]), True, liz)
 
