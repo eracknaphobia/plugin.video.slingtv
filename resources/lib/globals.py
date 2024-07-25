@@ -44,6 +44,8 @@ FREE_ACCOUNT = SETTINGS.getSetting('free_account')
 CACHE = False
 UPDATE_LISTING = False
 DEBUG_CODE = SETTINGS.getSetting('Debug')
+debug = dict(urlParse.parse_qsl(DEBUG_CODE))
+CHANNELS = (FREE_ACCOUNT == 'false' or 'channels' in debug)
 
 ANDROID_USER_AGENT = "Sling%20TV/8.4.5.444191 CFNetwork/1485 Darwin/23.1.0"
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \

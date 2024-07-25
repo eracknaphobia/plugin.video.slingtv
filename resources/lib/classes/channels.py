@@ -55,9 +55,9 @@ class CHANNELS:
                     'metadata'] else False
                 sling_free = True if 'genre' in channel['metadata'] and 'Sling Free' in channel['metadata'][
                     'genre'] else False
-
+                
                 if (linear_channel and language == 'english' and not any(d['name'] == channel['metadata']['channel_name'] for d in self.channels)
-                        and (sling_free or FREE_ACCOUNT == 'false')):
+                        and (sling_free or CHANNELS)):
                     channel_dict = {
                         'name': channel['metadata']['channel_name'],
                         'stream': f'plugin://plugin.video.slingtv/?mode=play&url={channel["qvt_url"]}',
