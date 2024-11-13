@@ -28,6 +28,7 @@ USER_PASSWORD = SETTINGS.getSetting('User_Password')
 
 # EPG Settings
 FREE_STREAMS = SETTINGS.getSetting('include_free_channels')
+FREE_STREAM_SUB_ID = "MjY4LDY1OA=="
 
 # Hidden Settings
 ACCESS_TOKEN = SETTINGS.getSetting('access_token')

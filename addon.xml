@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.slingtv" version="2024.4.17" name="Sling TV" provider-name="eracknaphobia">
+<addon id="plugin.video.slingtv" version="2024.11.13" name="Sling TV" provider-name="eracknaphobia">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" />
@@ -19,7 +19,7 @@
         <source></source>
         <website>https://www.Slingtv.com</website>
         <news>
-            - Pluto stream are now working
+            - Fix freestreams not loading
         </news>
         <forum></forum>
         <assets>

@@ -27,7 +27,7 @@ class CHANNELS:
             if subs:
                 channels_url = f"{self.cms_url}/cms/publish3/domain/channels/v4/{USER_OFFSET}/{USER_DMA}/{subs}/1.json"
             else:
-                channels_url = f"{self.cms_url}/cms/publish3/domain/channels/v4/{USER_OFFSET}/{USER_DMA}/MTUw/1.json"
+                channels_url = f"{self.cms_url}/cms/publish3/domain/channels/v4/{USER_OFFSET}/{USER_DMA}/{FREE_STREAM_SUB_ID}/1.json"
 
             response = requests.get(channels_url, headers=HEADERS)
             if response.ok:
