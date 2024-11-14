@@ -21,10 +21,7 @@ class EPG:
             return
 
         subs = binascii.b2a_base64(str.encode(LEGACY_SUBS.replace('+', ','))).decode().strip()
-        if subs:
-            channels_url = f"{self.cms_url}/cms/publish3/domain/channels/v4/{USER_OFFSET}/{USER_DMA}/{subs}/1.json"
-        else:
-            channels_url = f"{self.cms_url}/cms/publish3/domain/channels/v4/{USER_OFFSET}/{USER_DMA}/{FREE_STREAM_SUB_ID}/1.json"
+        channels_url = f"{self.cms_url}/cms/publish3/domain/channels/v4/{USER_OFFSET}/{USER_DMA}/{subs}/1.json"
         response = requests.get(channels_url, headers=HEADERS)
         if response.ok:
             response = response.json()

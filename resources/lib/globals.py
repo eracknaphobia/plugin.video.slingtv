@@ -26,10 +26,6 @@ LANGUAGE = SETTINGS.getLocalizedString
 USER_EMAIL = SETTINGS.getSetting('User_Email')
 USER_PASSWORD = SETTINGS.getSetting('User_Password')
 
-# EPG Settings
-FREE_STREAMS = SETTINGS.getSetting('include_free_channels')
-FREE_STREAM_SUB_ID = "MjY4LDY1OA=="
-
 # Hidden Settings
 ACCESS_TOKEN = SETTINGS.getSetting('access_token')
 ACCESS_TOKEN_JWT = SETTINGS.getSetting('access_token_jwt')
@@ -41,6 +37,12 @@ USER_DMA = SETTINGS.getSetting('user_dma')
 USER_OFFSET = SETTINGS.getSetting('user_offset')
 USER_ZIP = SETTINGS.getSetting('user_zip')
 FREE_ACCOUNT = SETTINGS.getSetting('free_account')
+
+# EPG Settings
+FREE_STREAMS = SETTINGS.getSetting('include_free_channels')
+if FREE_STREAMS == 'true' or FREE_ACCOUNT == 'true':
+    LEGACY_SUBS += '268,658' 
+
 
 CACHE = False
 UPDATE_LISTING = False

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.slingtv" version="2024.11.13" name="Sling TV" provider-name="eracknaphobia">
+<addon id="plugin.video.slingtv" version="2024.11.14" name="Sling TV" provider-name="eracknaphobia">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" />
@@ -19,7 +19,8 @@
         <source></source>
         <website>https://www.Slingtv.com</website>
         <news>
-            - Fix freestreams not loading
+            - Refactor free stream code
+            - Add genres to channels groups
         </news>
         <forum></forum>
         <assets>
